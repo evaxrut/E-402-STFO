@@ -134,6 +134,43 @@ class DFA:
     def difference(self, other_dfa: DFA):
         complement_other = other_dfa.complement()
         self.intersection(complement_other)
+
+    def symmetric_difference(self, other_dfa: DFA) -> DFA:
+        sym_diff_dfa = DFA.__new__(DFA)
+        sym_diff_dfa.symbols = self.symbols
+        sym_diff_dfa.alphabet_size = self.alphabet_size
+
+        states_product = set(product(self.states.keys(), other_dfa.states.keys()))
+
+        sym_diff_state_names = {}
+        sym_diff_state_idx = 1
+
+        sym_diff_dfa.final_states = set()
+        for (s1, s2) in sorted(states_product):
+            sym_diff_state_names[(s1, s2)] = sym_diff_state_idx
+            if (s1 in self.final_states) != (s2 in other_dfa.final_states):
+                sym_diff_dfa.final_states.add(sym_diff_state_idx)
+
+            sym_diff_state_idx += 1
+
+        sym_diff_dfa.num_states = len(sym_diff_state_names)
+        sym_diff_dfa.num_final_states = len(sym_diff_dfa.final_states)
+        sym_diff_dfa.initial_state = sym_diff_state_names[(self.initial_state, other_dfa.initial_state)]
+        sym_diff_dfa.states = sym_diff_state_names
+
+        transitions_sym_diff = []
+        for (s1, s2) in sorted(states_product):
+            transition = []
+            for symbol in sym_diff_dfa.symbols:
+                next_s1 = self.states[s1].connections[symbol].name
+                next_s2 = other_dfa.states[s2].connections[symbol].name
+                new_state = sym_diff_state_names[(next_s1, next_s2)]
+                transition.append(str(new_state))
+            transitions_sym_diff.append(transition)
+
+        sym_diff_dfa.transitions = transitions_sym_diff
+
+        sym_diff_dfa.print_cause_strings_in_python_dont_concatinate_well()
     
     def print_cause_strings_in_python_dont_concatinate_well(self):
         print(self.num_states, self.alphabet_size, self.initial_state, len(self.final_states))
