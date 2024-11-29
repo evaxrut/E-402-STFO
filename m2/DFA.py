@@ -2,6 +2,7 @@ from __future__ import annotations
 from ast import Tuple
 from itertools import product
 import sys
+from collections import deque
 
 sys.setrecursionlimit(100000)
 
@@ -178,7 +179,26 @@ class DFA:
         print(*sorted(self.final_states))
         for transition in self.transitions:
             print(*transition)
- 
+
+    def is_empty_question_mark(self):
+        visited = set()
+        queue = deque([self.initial_state]) 
+
+        while queue:
+            current = queue.popleft()
+            if current in self.final_states:
+                print("non-empty")
+                return
+            if current in visited:
+                continue
+            visited.add(current)
+
+            for symbol in self.symbols:
+                next_state = self.states[current].connections[symbol].name
+                if next_state not in visited:
+                    queue.append(next_state)
+
+        print("empty")
 
 
     def __str__(self):
