@@ -1,4 +1,5 @@
 from __future__ import annotations
+from ast import Tuple
 from itertools import product
 import sys
 
@@ -74,7 +75,7 @@ class DFA:
             print(*transition)
 
 
-    def union(self, other_dfa: DFA) -> DFA:
+    def union(self, other_dfa: DFA):
         union_dfa = DFA.__new__(DFA)
         union_dfa.symbols = self.symbols
         union_dfa.alphabet_size = self.alphabet_size
@@ -113,7 +114,21 @@ class DFA:
             transitions_union.append(transition)
 
         union_dfa.transitions = transitions_union
-        union_dfa.print_cause_strings_in_python_dont_concatinate_well()
+        return (union_dfa, states_union)
+        # union_dfa.print_cause_strings_in_python_dont_concatinate_well()
+
+    def intersection(self, other_dfa: DFA):
+        intersection_dfa, states_union = self.union(other_dfa)
+        
+        intersection_dfa.final_states = {
+            intersection_dfa.states[(s1, s2)]
+            for (s1, s2) in states_union
+            if s1 in self.final_states and s2 in other_dfa.final_states
+        }
+        
+        intersection_dfa.num_final_states = len(intersection_dfa.final_states)
+        
+        intersection_dfa.print_cause_strings_in_python_dont_concatinate_well()
 
 
     
