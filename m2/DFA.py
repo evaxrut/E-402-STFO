@@ -68,11 +68,12 @@ class DFA:
         complement_dfa = copy.deepcopy(self)
         complement_dfa.final_states = [x for x in range(1, self.num_states + 1) if x not in self.final_states]
 
-        print(complement_dfa.num_states, complement_dfa.alphabet_size, complement_dfa.initial_state, len(complement_dfa.final_states))
-        print(complement_dfa.symbols)
-        print(*complement_dfa.final_states)
-        for transition in complement_dfa.transitions:
-            print(*transition)
+        return complement_dfa
+        # print(complement_dfa.num_states, complement_dfa.alphabet_size, complement_dfa.initial_state, len(complement_dfa.final_states))
+        # print(complement_dfa.symbols)
+        # print(*complement_dfa.final_states)
+        # for transition in complement_dfa.transitions:
+        #     print(*transition)
 
 
     def union(self, other_dfa: DFA):
@@ -130,12 +131,14 @@ class DFA:
         
         intersection_dfa.print_cause_strings_in_python_dont_concatinate_well()
 
-
+    def difference(self, other_dfa: DFA):
+        complement_other = other_dfa.complement()
+        self.intersection(complement_other)
     
     def print_cause_strings_in_python_dont_concatinate_well(self):
         print(self.num_states, self.alphabet_size, self.initial_state, len(self.final_states))
         print(self.symbols)
-        print(*self.final_states)
+        print(*sorted(self.final_states))
         for transition in self.transitions:
             print(*transition)
  
