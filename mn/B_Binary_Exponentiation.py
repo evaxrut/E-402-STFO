@@ -17,6 +17,6 @@ def bin_exp(base, exponent, modulus):
             result =  (result * base) % modulus
         base = (base * base) % modulus
         exponent //= 2
-    print(result)
+    return result
 
 # bin_exp(a, e, m)
