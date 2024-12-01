@@ -3,7 +3,7 @@
 # The code should return the values a, b. The inputs will satisfy a, b, k ≤ 10**18
 
 # from A_Euclids_Algorithm import euclid
-a, b, k = map(int, input().strip().split())
+# a, b, k = map(int, input().strip().split())
 
 def early_termination(a, b, k):
     k_sqrt = k ** 0.5
@@ -15,4 +15,4 @@ def early_termination(a, b, k):
         # print(remainder)
     print(max(a, b), min(a, b))
 
-early_termination(a, b, k)
+# early_termination(a, b, k)

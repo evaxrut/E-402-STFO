@@ -11,7 +11,7 @@ import random
 
 
 # https://en.wikipedia.org/wiki/Tonelli%E2%80%93Shanks_algorithm
-number = int(input())
+# number = int(input())
 
 def root_of_min_one(number):
     c_chosen = False
@@ -27,7 +27,7 @@ def root_of_min_one(number):
 # # p = 1 mod 4
 
 
-print(root_of_min_one(number))
+# print(root_of_min_one(number))
 
 # find c(p-1)/2 = -1 (mod p)
 # r = c(p-1) / 4
