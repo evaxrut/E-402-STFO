@@ -231,49 +231,82 @@ class DFA:
             print(maximum)
 
 
-    def topological_sort(self):
+    def topological_sort(self, intersection):
         # https://en.wikipedia.org/wiki/Topological_sorting#Kahn's_algorithm
-        in_degree = {state: 0 for state in self.states.values()}
-        for state in self.states:
-            print("self.states: ", self.states)
-            print("state.connections: ", self.states[state].connections)
-            for symbol, neighbor in self.states[state].connections.items():
-                for symbol in self.symbols:
-                    print("symbols part: ", symbol, neighbor)
-                    # in_degree[neighbor[symbol]] += 1
-                    # in_degree[neighbor] += 1
-                    in_degree[neighbor] += 1
+        inter = {state for state in self.states if state in intersection}
 
-        # S = {state for state, degree in in_degree.items() if degree == 0}
+        in_degree = {state: 0 for state in inter}
+        for state in inter:
+            for symbol, neighbor in self.states[state].connections.items():
+                if neighbor.name in inter:
+                    in_degree[neighbor.name] += 1
+
         L = list()
-        print("self.states ", self.states)
-        print("self.states[1] ", self.states[1])
-        print("self.initial ", self.initial_state)
-        print("self.states[self.initial] ", self.states[self.initial_state])
-        S =  set()
-        S.add(self.states[self.initial_state])
+        S = deque([state for state in inter if in_degree[state] == 0])
 
         while S:
-            n = S.pop()
+            n = S.popleft()
             L.append(n)
-            print("n.connections ",n.connections)
-            for m, symbols in n.connections.items():
-                for symbol in self.symbols:
-                    in_degree[m] -= 1
-                    del n.connections[m] 
-                    if in_degree[m] == 0:
-                        S.add(m)
-
-        #if cycle
-        if any(in_degree[state] > 0 for state in self.states.values()):
+            connections_copy = self.states[n].connections.copy()
+            for symbol, m in connections_copy.items():
+                if m.name in inter:
+                    in_degree[m.name] -= 1
+                    del self.states[n].connections[symbol] 
+                    if in_degree[m.name] == 0:
+                        S.append(m.name)
+        
+        # print("degrees ", in_degree)
+        if any(in_degree[state] > 0 for state in inter):
             print("infinite")
         else:
+            # return L if you want to return the topologicallt sorted order
             print("finite")
 
+    def accessable(self):
+        accessible = set()
+        queue = deque([self.initial_state])
 
+        while queue:
+            current = queue.popleft()
+            if current not in accessible:
+                accessible.add(current)
+                for symbol, next_state in self.states[current].connections.items():
+                    if next_state.name not in accessible:
+                        queue.append(next_state.name)
+
+        return accessible
+
+    def reverse_transitions(self) -> dict:
+        reverse_trans = {state: set() for state in self.states}
+        for state in self.states.values():
+            for symbol, next_state in state.connections.items():
+                reverse_trans[next_state.name].add(state.name)
+        return reverse_trans
+
+    def co_accessable(self):
+        co_accessible = set()
+        queue = deque(self.final_states)
+        reverse_transitions = self.reverse_transitions()
+
+        while queue:
+            current = queue.popleft()
+            if current not in co_accessible:
+                co_accessible.add(current)
+                for predecessor in reverse_transitions.get(current, []):
+                    if predecessor not in co_accessible:
+                        queue.append(predecessor)
+
+        return co_accessible
 
     def is_finite(self):
-        self.topological_sort()
+        #TODO: find accessible
+        accessible = self.accessable()
+
+        #TODO find co-accessable
+        co_accessible = self.co_accessable()
+        #TODO: sniðmengi af þeim
+        intersection_ = accessible.intersection(co_accessible)
+        self.topological_sort(intersection_)
 
     def __str__(self):
         result = f"{self.num_states} {self.alphabet_size} {self.initial_state} {len(self.final_states)}\n"
@@ -348,12 +381,14 @@ class State:
         self.connections = dict()
         self.final = False 
         self.name = name
+        self.accessible = False
+        self.coaccessible = False
 
     def __repr__(self):
         return f"State({self.name}, final={self.final})"
 
 if __name__ == "__main__":
     dfa1 = DFA()
-    dfa2 = DFA()
+    # dfa2 = DFA()
 
-    dfa1.concatenate(dfa2)
+    dfa1.is_finite()
