@@ -20,15 +20,12 @@ class DFA:
     def construct(self):
         self.num_states, self.alphabet_size, self.initial_state, self.num_final_states = map(int, input().strip().split())
 
-
         self.symbols = input().strip()
-
 
         self.final_states = set(map(int, input().strip().split()))
 
         for i in range(1, self.num_states + 1):
             self.states[i] = State(i)
-
 
         for i in range(1, self.num_states + 1):
             transitions = input().strip().split()
@@ -36,7 +33,6 @@ class DFA:
             for j, symbol in enumerate(self.symbols):
                 destination = int(transitions[j])
                 self.states[i].connections[symbol] = self.states[destination]
-
 
         for state in self.final_states:
             self.states[state].final = True
@@ -53,7 +49,6 @@ class DFA:
             for transition in transitions:
 
                 if transition in current_state.connections:
-                    # print(f"Current state: {current_state} transitioning with {transition} to {current_state.connections[transition]}")
                     current_state = current_state.connections[transition]
                 else:
                     print("reject")
@@ -64,18 +59,11 @@ class DFA:
                 else:
                     print("reject")
 
-
     def complement(self):
         complement_dfa = copy.deepcopy(self)
         complement_dfa.final_states = [x for x in range(1, self.num_states + 1) if x not in self.final_states]
 
         return complement_dfa
-        # print(complement_dfa.num_states, complement_dfa.alphabet_size, complement_dfa.initial_state, len(complement_dfa.final_states))
-        # print(complement_dfa.symbols)
-        # print(*complement_dfa.final_states)
-        # for transition in complement_dfa.transitions:
-        #     print(*transition)
-
 
     def union(self, other_dfa: DFA):
         union_dfa = DFA.__new__(DFA)
@@ -117,7 +105,7 @@ class DFA:
 
         union_dfa.transitions = transitions_union
         return (union_dfa, states_union)
-        # union_dfa.print_cause_strings_in_python_dont_concatinate_well()
+
 
     def intersection(self, other_dfa: DFA):
         intersection_dfa, states_union = self.union(other_dfa)
@@ -166,7 +154,7 @@ class DFA:
                 next_s1 = self.states[s1].connections[symbol].name
                 next_s2 = other_dfa.states[s2].connections[symbol].name
                 new_state = sym_diff_state_names[(next_s1, next_s2)]
-                transition.append(str(new_state))
+                transition.append(int(new_state))
             transitions_sym_diff.append(transition)
 
         sym_diff_dfa.transitions = transitions_sym_diff
@@ -200,6 +188,92 @@ class DFA:
 
         print("empty")
 
+    def minimum_word_length(self):
+        word_len = 0
+        visited = set()
+        queue = deque([(self.initial_state, 0)]) 
+
+        while queue:
+            current, word_len = queue.popleft()
+            if current in self.final_states:
+                print(word_len)
+                return
+            if current in visited:
+                continue
+            visited.add(current)
+
+            for symbol in self.symbols:
+                next_state = self.states[current].connections[symbol].name
+                if next_state not in visited:
+                    queue.append((next_state, word_len + 1))
+
+    def maximum_word_length(self):
+        maximum = -1
+        word_len = 0
+        visited = set()
+        queue = deque([(self.initial_state, 0)]) 
+
+        while queue:
+            current, word_len = queue.popleft()
+
+            if current in self.final_states:
+                if word_len > maximum:
+                    maximum = word_len
+            if current in visited:
+                continue
+            visited.add(current)
+
+            for symbol in self.symbols:
+                next_state = self.states[current].connections[symbol].name
+                if next_state not in visited:
+                    queue.append((next_state, word_len + 1))
+        if maximum != -1:
+            print(maximum)
+
+
+    def topological_sort(self):
+        # https://en.wikipedia.org/wiki/Topological_sorting#Kahn's_algorithm
+        in_degree = {state: 0 for state in self.states.values()}
+        for state in self.states:
+            print("self.states: ", self.states)
+            print("state.connections: ", self.states[state].connections)
+            for symbol, neighbor in self.states[state].connections.items():
+                for symbol in self.symbols:
+                    print("symbols part: ", symbol, neighbor)
+                    # in_degree[neighbor[symbol]] += 1
+                    # in_degree[neighbor] += 1
+                    in_degree[neighbor] += 1
+
+        # S = {state for state, degree in in_degree.items() if degree == 0}
+        L = list()
+        print("self.states ", self.states)
+        print("self.states[1] ", self.states[1])
+        print("self.initial ", self.initial_state)
+        print("self.states[self.initial] ", self.states[self.initial_state])
+        S =  set()
+        S.add(self.states[self.initial_state])
+
+        while S:
+            n = S.pop()
+            L.append(n)
+            print("n.connections ",n.connections)
+            for m, symbols in n.connections.items():
+                for symbol in self.symbols:
+                    in_degree[m] -= 1
+                    del n.connections[m] 
+                    if in_degree[m] == 0:
+                        S.add(m)
+
+        #if cycle
+        if any(in_degree[state] > 0 for state in self.states.values()):
+            print("infinite")
+        else:
+            print("finite")
+
+
+
+    def is_finite(self):
+        self.topological_sort()
 
     def __str__(self):
         result = f"{self.num_states} {self.alphabet_size} {self.initial_state} {len(self.final_states)}\n"
@@ -210,15 +284,76 @@ class DFA:
 
         return result
 
-        
 
-            
+    def concatenate(self, other):
+        def up(i):
+            return int(i) + int(self.num_states)
+
+        def down(i):
+            return int(i) - int(self.num_states)
+
+        def get_transition(i, j):
+            if i <= self.num_states:
+                return int(self.transitions[i - 1][j])
+            else:
+                return up(other.transitions[down(i) - 1][j])
+
+        initial_state = {self.initial_state}
+        if self.initial_state in self.final_states:
+            initial_state.add(up(other.initial_state))
+        initial_state = frozenset(initial_state)
+        new_states = [initial_state]
+        set_state_map = dict()
+        set_state_map[initial_state] = 1
+        new_final_states = set()
+        new_transitions = [[]]
+        queue = deque([initial_state])
+
+        while queue:
+            cur_state = queue.popleft()
+            if any(down(x) in other.final_states for x in cur_state):
+                new_final_states.add(set_state_map[cur_state])
+            for j in range(len(self.symbols)):
+                next_state = set()
+                for elem in cur_state:
+                    next_state.add(get_transition(int(elem), int(j)))
+                if any(x in self.final_states for x in next_state):
+                    next_state.add(up(other.initial_state))
+                next_state = frozenset(next_state)
+                if next_state not in set_state_map:
+                    set_state_map[next_state] = len(new_states) + 1
+                    new_states.append(next_state)
+                    new_transitions.append([])
+                    queue.append(next_state)
+
+                new_transitions[set_state_map[cur_state] - 1].append(set_state_map[next_state])
+
+        concatinated_dfa = DFA.__new__(DFA)
+        concatinated_dfa.states = new_states
+        concatinated_dfa.symbols = self.symbols
+        concatinated_dfa.num_states = len(new_states)
+        concatinated_dfa.final_states = new_final_states
+        concatinated_dfa.num_final_states = len(new_final_states)
+        concatinated_dfa.alphabet_size = len(self.symbols)
+        concatinated_dfa.transitions = new_transitions
+        concatinated_dfa.initial_state = 1 
+
+        concatinated_dfa.print_cause_strings_in_python_dont_concatinate_well()
+
+
+        
 
 class State:
     def __init__(self, name):
         self.connections = dict()
         self.final = False 
-        self.name = name # for debugging purposes
+        self.name = name
 
     def __repr__(self):
         return f"State({self.name}, final={self.final})"
+
+if __name__ == "__main__":
+    dfa1 = DFA()
+    dfa2 = DFA()
+
+    dfa1.concatenate(dfa2)
