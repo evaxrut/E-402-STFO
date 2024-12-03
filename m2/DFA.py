@@ -3,10 +3,16 @@ from ast import Tuple
 from itertools import product
 import sys
 from collections import deque
+# from graphviz import Digraph
+import logging
+import cProfile
+import pstats
 
 sys.setrecursionlimit(100000)
 
 import copy
+
+LOG = logging.getLogger(__name__)
 
 class DFA:
     def __init__(self) -> None:
@@ -207,32 +213,12 @@ class DFA:
                 if next_state not in visited:
                     queue.append((next_state, word_len + 1))
 
-    def maximum_word_length(self):
-        maximum = -1
-        word_len = 0
-        visited = set()
-        queue = deque([(self.initial_state, 0)]) 
-
-        while queue:
-            current, word_len = queue.popleft()
-
-            if current in self.final_states:
-                if word_len > maximum:
-                    maximum = word_len
-            if current in visited:
-                continue
-            visited.add(current)
-
-            for symbol in self.symbols:
-                next_state = self.states[current].connections[symbol].name
-                if next_state not in visited:
-                    queue.append((next_state, word_len + 1))
-        if maximum != -1:
-            print(maximum)
-
-
     def topological_sort(self, intersection):
         # https://en.wikipedia.org/wiki/Topological_sorting#Kahn's_algorithm
+        # copy_dfa = DFA.__new__(DFA)
+        # copy_dfa.states = self.states
+        # copy_dfa = 
+
         inter = {state for state in self.states if state in intersection}
 
         in_degree = {state: 0 for state in inter}
@@ -251,16 +237,14 @@ class DFA:
             for symbol, m in connections_copy.items():
                 if m.name in inter:
                     in_degree[m.name] -= 1
-                    del self.states[n].connections[symbol] 
+                    # del self.states[n].connections[symbol] 
                     if in_degree[m.name] == 0:
                         S.append(m.name)
         
-        # print("degrees ", in_degree)
         if any(in_degree[state] > 0 for state in inter):
             print("infinite")
         else:
-            # return L if you want to return the topologicallt sorted order
-            print("finite")
+            return(L)
 
     def accessable(self):
         accessible = set()
@@ -306,7 +290,7 @@ class DFA:
         co_accessible = self.co_accessable()
         #TODO: sniðmengi af þeim
         intersection_ = accessible.intersection(co_accessible)
-        self.topological_sort(intersection_)
+        return self.topological_sort(intersection_)
 
     def __str__(self):
         result = f"{self.num_states} {self.alphabet_size} {self.initial_state} {len(self.final_states)}\n"
@@ -371,7 +355,53 @@ class DFA:
         concatinated_dfa.transitions = new_transitions
         concatinated_dfa.initial_state = 1 
 
-        concatinated_dfa.print_cause_strings_in_python_dont_concatinate_well()
+        # concatinated_dfa.print_cause_strings_in_python_dont_concatinate_well()
+        return concatinated_dfa
+
+    def maximum_word_length(self):
+        # f = dict()
+        toplogogical_sort = self.is_finite()
+        assert toplogogical_sort is not None
+        # print(toplogogical_sort)
+
+        top_set = set(toplogogical_sort)
+
+        distance = {state: -1 for state in self.states}
+        # distance = dict()
+
+        distance[self.initial_state] = 0
+
+        # states = [state for state in self.states if state in toplogogical_sort]
+        for state in toplogogical_sort:
+            # print("state: ", state)
+            if distance[state] == -1:
+                # LOG.debug("distance[state] "  distance[state])
+                continue
+            LOG.debug("here1")
+            LOG.debug(f"connections , {self.states[state].connections}")
+            for symbol, neighbour in self.states[state].connections.items():
+                # LOG.debug("neighbour name: ", neighbour.name)
+                if neighbour.name in top_set:
+                    LOG.debug("here")
+                    distance[neighbour.name] = max(distance[neighbour.name], distance[state] + 1)
+            #TODO
+        
+        # LOG.debug("distance: ", distance)
+        max_length = -1
+        for final_state in self.final_states:
+            if final_state in distance and distance[final_state] != -1:
+                max_length = max(max_length, distance[final_state])
+                # print("distance: ", distance[final_state])
+
+        # print(distance)
+
+        print(max_length)
+   
+
+
+    def kleene_star(self):
+        concat = self.concatenate
+
 
 
         
@@ -387,8 +417,13 @@ class State:
     def __repr__(self):
         return f"State({self.name}, final={self.final})"
 
-if __name__ == "__main__":
+def main():
     dfa1 = DFA()
-    # dfa2 = DFA()
+    dfa1.maximum_word_length()
 
-    dfa1.is_finite()
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    # cProfile.run("main()", "output.prof")
+    # stats = pstats.Stats("output.prof")
+    # stats.sort_stats("cumulative").print_stats()
+    main()
