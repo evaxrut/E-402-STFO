@@ -64,7 +64,6 @@ if __name__ == "__main__":
     for row in grid:
         print(row)
 
-    # Update the grid
     updated_grid = ising_model(grid, temperture, a, b, c)
 
     print("Updated Grid:")
