@@ -6,7 +6,7 @@
 # This can also help you see if your algorithm is working correctly, see examples below.
 
 import matplotlib.pyplot as plt
-import random
+# import random
 
 def plot_ising_grid(grid):
     m = len(grid)
