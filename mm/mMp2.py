@@ -11,7 +11,7 @@ import time
 
 class Propp_Wilson:
     def __init__(self) -> None:
-        self.time = 0
+        self.T = 0
         self.prev_values = dict()
         random.seed(time.time())
 
