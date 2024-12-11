@@ -4,10 +4,9 @@
 import pulp
 
 
-def max_clique_size(graph_dict, num_verticies):
+def max_clique_size(graph_dict: dict, num_verticies: int) -> None:
     all_vertices = set(graph_dict)
     p = pulp.LpProblem("Example", pulp.LpMaximize)
-
 
     v = pulp.LpVariable.dict("x", range(num_verticies), cat="Binary")
 
@@ -21,10 +20,11 @@ def max_clique_size(graph_dict, num_verticies):
         for j in not_connected:
             p += v[i] + v[j] <= 1
 
-    p.solve(pulp.PULP_CBC_CMD(msg = False))
+    p.solve(pulp.PULP_CBC_CMD(msg=False))
 
     clique_size = sum(v[i].varValue for i in range(num_vertices))
     print(int(clique_size))
+
 
 if __name__ == "__main__":
     num_vertices, num_edges = map(int, input().split())
@@ -42,27 +42,3 @@ if __name__ == "__main__":
         graph_dict[c2].append(c1)
 
     max_clique_size(graph_dict, num_vertices)
-
-    
-
-
-# in
-# 3 3
-# 0 1
-# 0 2
-# 1 2
-
-# out
-# 3
-
-
-#in
-# 6 3
-# 0 3
-# 1 4
-# 2 4
-
-# out
-# 2
-
-

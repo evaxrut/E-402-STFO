@@ -3,8 +3,8 @@
 
 import pulp
 
-def max_independent_set(graph_dict, num_verticies):
-    # all_vertices = set(graph_dict)
+
+def max_independent_set(graph_dict: dict, num_verticies: int) -> None:
     p = pulp.LpProblem("Example", pulp.LpMaximize)
 
     v = pulp.LpVariable.dict("x", range(num_verticies), cat="Binary")
@@ -15,7 +15,6 @@ def max_independent_set(graph_dict, num_verticies):
     # subject to
     for i in range(num_verticies):
         connected_to = set(graph_dict.get(i, []))
-        # not_connected = all_vertices.difference(connected_to) - {i}
         for j in connected_to:
             p += v[i] + v[j] <= 1
 
@@ -23,6 +22,7 @@ def max_independent_set(graph_dict, num_verticies):
 
     clique_size = sum(v[i].varValue for i in range(num_vertices))
     print(int(clique_size))
+
 
 if __name__ == "__main__":
     num_vertices, num_edges = map(int, input().split())
