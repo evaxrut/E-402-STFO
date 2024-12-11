@@ -6,6 +6,7 @@
 # It should support setting the time T and asking for a new set of random values, which outputs the random value 
 # for T and increases T by 1.
 
+from typing import Tuple
 import random
 import time
 
@@ -15,7 +16,8 @@ class Propp_Wilson:
         self.prev_values = dict()
         random.seed(time.time())
 
-    def get_next(self):
+    def get_next(self) -> Tuple[float, float, float]:
+        """TODO: add docstring"""
         if self.T not in self.prev_values:
             random.seed(self.T)
             self.prev_values[self.T] = (random.random(), random.random(), random.random())
@@ -23,7 +25,8 @@ class Propp_Wilson:
         self.T += 1
         return result
 
-    def set_time(self, time):
+    def set_time(self, time: int) -> None:
+        """TODO: add docstring"""
         self.T = time
 
 

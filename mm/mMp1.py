@@ -1,22 +1,17 @@
 # mMp1, 10 points
-# In the Ising model our state will be an m x m grid of values ±1, and at
-# the start we have to pick a temperature β to simulate. When we update
-# our grid according to our Markov chain we do the following. We pick a
-# random cell in our grid, say (x, y). Let k+ be the number of neighbours
-# it has which are +1 and k_ the number of neighbours that are −1. We
-# only consider neighbours up, down, left and right and don’t count out of
-# bounds neighbours. We then define Q = exp(2β(k+ − k_)) and finally
-# P = Q / (Q + 1). Finally, with probability P we set the value at (x, y) to 1
-# and otherwise to −1. Make a function that takes in such an m x m grid
-# along with three random values a, b, c in [0,1] and uses that to update the
-# state. You can let x = ⌊a * m⌋, y = ⌊b * m⌋ and compare P to c in the
-# final step.
+# In the Ising model our state will be an m x m grid of values ±1, and at the start we have to pick a temperature β to simulate. When we update
+# our grid according to our Markov chain we do the following. We pick a random cell in our grid, say (x, y). Let k+ be the number of neighbours
+# it has which are +1 and k_ the number of neighbours that are −1. We only consider neighbours up, down, left and right and don’t count out of
+# bounds neighbours. We then define Q = exp(2β(k+ − k_)) and finally P = Q / (Q + 1). Finally, with probability P we set the value at (x, y) to 1
+# and otherwise to −1. Make a function that takes in such an m x m grid along with three random values a, b, c in [0,1] and uses that to update the
+# state. You can let x = ⌊a * m⌋, y = ⌊b * m⌋ and compare P to c in the final step.
 import random
 import math
 from typing import Tuple
 
 
-def get_pos_neg_neighbours(grid, x, y) -> Tuple[int, int]:
+def get_pos_neg_neighbours(grid: list, x: int, y: int) -> Tuple[int, int]:
+    """TODO: add docstring"""
     pos = 0
     neg = 0
     neighbors = [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
@@ -30,12 +25,13 @@ def get_pos_neg_neighbours(grid, x, y) -> Tuple[int, int]:
     return pos, neg
 
 
-def ising_model(grid, temperture, a, b, c) -> list:
+def update_ising_state(grid: list, temperture: float, a: float, b: float, c: float) -> list: #TODO: how to typehint double list?
+    """TODO: add docstring"""
     m = len(grid)
     x = math.floor(a * m)
     y = math.floor(b * m)
 
-    print("x, y = ", x, ",", y)
+    # print("x, y = ", x, ",", y)
 
     k_minus, k_plus = get_pos_neg_neighbours(grid, x, y)
 
@@ -64,7 +60,7 @@ if __name__ == "__main__":
     for row in grid:
         print(row)
 
-    updated_grid = ising_model(grid, temperture, a, b, c)
+    updated_grid = update_ising_state(grid, temperture, a, b, c)
 
     print("Updated Grid:")
     for row in updated_grid:

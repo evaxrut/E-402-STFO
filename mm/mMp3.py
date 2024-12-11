@@ -6,17 +6,18 @@
 # It should then use the function from part 6 k times, getting the three random numbers it needs from r each time, 
 # which advances its internal time. Finally, it should return the state we end up in at the end of this process.
 
-from mMp1 import ising_model
+from mMp1 import update_ising_state
 from mMp2 import Propp_Wilson
 import random
 
 random_number_gen = Propp_Wilson()
-def simulation(t, k, x0, grid):
+def simulation(t: int, k: int, x0: int, grid: list) -> list | None:
+    """TODO: add docstring"""
     random_number_gen.set_time(t)
     state = None
     for _ in range(k):
         a, b, c = random_number_gen.get_next()
-        state = ising_model(grid, x0, a, b, c)
+        state = update_ising_state(grid, x0, a, b, c)
     if state:
         return state
 
