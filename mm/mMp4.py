@@ -4,34 +4,31 @@
 from mMp2 import RandomGenerator
 from mMp3 import simulation
 import copy
-import random
+# import random
 
 def sandwich(external_states: list, time: int, r: RandomGenerator, temperature: float) -> list: #TODO: finna betra nafn
     """TODO: add docstring"""
-
     while True:
-        start_time = -time + 1
-        r.set_time(time)
-
         results = []
+        start_time = -time + 1
         for state in external_states:
             grid_copy = copy.deepcopy(state)
-            assert all(isinstance(row, list) for row in grid_copy)
-            results.append(simulation(start_time, time, temperature, grid_copy, RandomGenerator()))
+            results.append(simulation(start_time, time, temperature, grid_copy, r))
         
         if all(res == results[0] for res in results):
-            # print(results[0])
             return results[0]
 
         time *= 2
 
 if __name__ == "__main__":
-    # E = [[1, -1], [1, -1]], [[1, 1], [-1, -1]]
-    m = 2
-    E = [[random.choice([-1, 1]) for _ in range(m)] for _ in range(m)]
+    m = 3
+    posE = [[1 for _ in range(m)] for _ in range(m)]
+    negE = [[-1 for _ in range(m)] for _ in range(m)]
+
     K = 10
-    temperature = 0
+
+    temperature = 0.5
     r = RandomGenerator() 
+    res = sandwich([posE, negE], K, r, temperature)
     
-    result = sandwich([E], K, r, temperature)
-    print(result)
+    print(res)

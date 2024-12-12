@@ -3,7 +3,6 @@
 
 from typing import Tuple
 import random
-# import time
 
 class RandomGenerator: # Propp_Wilson
     def __init__(self) -> None:
@@ -27,16 +26,20 @@ if __name__ == "__main__":
     counter = RandomGenerator()
     counter.set_time(0)
     t1 = counter.get_next()
-    print(t1)
     print("t1: ", counter.get_next())
+
     counter.set_time(7)
+
     counter.set_time(0)
     t2 = counter.get_next()
+
     print("t2: ", counter.get_next())
     assert t1 == t2  # Consistency test
+
     counter.set_time(8)
     t3 = counter.get_next()
     assert t1 != t3  # Making sure it changes
+
     print(counter.get_next())
     print(counter.get_next())
 

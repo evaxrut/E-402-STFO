@@ -3,8 +3,10 @@
 
 import matplotlib.pyplot as plt
 from mMp5 import ising_model
+import seaborn as sns
+# print(sns.__version__)
 
-def plot_ising_grid(grid: list) -> None:
+def plot_ising_grid_matplot(grid: list) -> None:
     """TODO: add docstring"""
 
     m = len(grid)
@@ -18,11 +20,20 @@ def plot_ising_grid(grid: list) -> None:
 
     ax.set_xticklabels([])
     ax.set_yticklabels([])
-    plt.show()
+    plt.savefig("/Users/evarut/uni/semester_3/E-402-STFO/mm/fig.jpg")
+
+
+def plot_ising_grid_seaborn(grid: list) -> None:
+    sns.heatmap(grid)
+    plt.savefig("/Users/evarut/uni/semester_3/E-402-STFO/mm/fig.jpg")
 
 if __name__ == "__main__":
-    m = 15
-    grid = ising_model(m, 0.0)
+    m = 30
+    grid = ising_model(m, 0.5)
     # for row in grid:
     #     print(row)
-    plot_ising_grid(grid)
+    # plot_ising_grid(grid)
+    # import os
+    # print(os.getcwd())
+    plot_ising_grid_seaborn(grid)
+

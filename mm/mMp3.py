@@ -5,19 +5,26 @@ from mMp1 import update_ising_state
 from mMp2 import RandomGenerator
 import random
 
-def simulation(t: int, k: int, x0: float, grid: list, random_number_gen: RandomGenerator) -> list | None:
+def simulation(start_time: int, step_number: int, temperature: float, grid: list, random_number_gen: RandomGenerator) -> list | None:
     """TODO: add docstring"""
-    random_number_gen.set_time(t)
+    random_number_gen.set_time(start_time)
     state = grid
-    for _ in range(k):
+    for _ in range(step_number):
         a, b, c = random_number_gen.get_next()
         assert all(isinstance(row, list) for row in grid)
-        state = update_ising_state(state, x0, a, b, c)
+        state = update_ising_state(state, temperature, a, b, c)
     if state:
         return state
 
 if __name__ == "__main__":
-    m = 15
+    m = 2
     grid = [[random.choice([-1, 1]) for _ in range(m)] for _ in range(m)]
-    new = simulation(0, 6, 0, grid, RandomGenerator())
-    print(new)
+    print("original grid")
+    for row in grid:
+        print(row)
+
+    updated_grid = simulation(0, 6, 0.5, grid, RandomGenerator())
+    print("updated grid")
+    if updated_grid:
+        for row in updated_grid:
+            print(row)
